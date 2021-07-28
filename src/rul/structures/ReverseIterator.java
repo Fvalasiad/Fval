@@ -1,4 +1,4 @@
-package fval.structures;
+package rul.structures;
 
 public class ReverseIterator<T,It extends BidirectionalIterator<T>> implements BidirectionalIterator<T> {
 

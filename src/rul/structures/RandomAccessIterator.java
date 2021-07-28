@@ -1,4 +1,4 @@
-package fval.structures;
+package rul.structures;
 
 public interface RandomAccessIterator<T> extends BidirectionalIterator<T> {
     void advance(long n);

@@ -1,5 +1,5 @@
-import fval.structures.BidirectionalIterator;
-import fval.structures.DoublyLinkedList;
+import rul.structures.BidirectionalIterator;
+import rul.structures.DoublyLinkedList;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;

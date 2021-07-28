@@ -1,4 +1,4 @@
-package fval.structures;
+package rul.structures;
 
 public interface BidirectionalIterator<T> extends ForwardIterator<T> {
     T previous();

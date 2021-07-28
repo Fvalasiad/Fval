@@ -1,4 +1,4 @@
-package fval.structures;
+package rul.structures;
 
 public interface Collection {
 }

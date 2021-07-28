@@ -1,4 +1,4 @@
-package fval.structures;
+package rul.structures;
 
 import org.jetbrains.annotations.NotNull;
 
