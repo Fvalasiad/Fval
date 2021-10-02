@@ -1,19 +1,18 @@
-package rul.structures;
+package rul.container;
 
 import org.jetbrains.annotations.NotNull;
+import rul.iterator.BidirectionalIterator;
+import rul.iterator.ForwardIterator;
+import rul.iterator.ReverseBidirectionalIterator;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Spliterator;
-import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 
-public class DoublyLinkedList<T> implements Iterable<T> {
+public class DoublyLinkedList<T> extends Container<T> {
 
     private Node<T> head;
     private Node<T> tail;
-    long size = 0;
 
     // Iterators
 
@@ -21,6 +20,7 @@ public class DoublyLinkedList<T> implements Iterable<T> {
      * @return Iterator pointing to the first element. Or an invalid iterator if the list is empty.
      * @complexity O(1).
      */
+    @Override
     public BidirectionalIterator<T> begin(){
         return new DLLIterator(head);
     }
@@ -29,40 +29,23 @@ public class DoublyLinkedList<T> implements Iterable<T> {
      * @return Iterator pointing to the last element. Or an invalid iterator if the list is empty.
      * @complexity O(1).
      */
-    public BidirectionalIterator<T> end(){ return new DLLIterator(tail); }
+    @Override
+    public BidirectionalIterator<T> end(){ return new DLLIterator(null); }
 
     /**
      * @return Reverse iterator pointing to the first element. Or an invalid iterator if the list is empty.
      * @complexity O(1).
      */
-    public BidirectionalIterator<T> reverseEnd(){ return new ReverseIterator<>(new DLLIterator(head)); }
+    public BidirectionalIterator<T> reverseEnd(){ return new ReverseBidirectionalIterator<>(new DLLIterator(null)); }
 
     /**
      * @return Reverse iterator pointing to the last element. Or an invalid iterator if the list is empty.
      * @complexity O(1).
      */
     public BidirectionalIterator<T> reverseBegin(){
-        return new ReverseIterator<>(new DLLIterator(tail));
+        return new ReverseBidirectionalIterator<>(new DLLIterator(tail));
     }
 
-
-    // Capacity
-
-    /**
-     * @return Whether the list is empty or not.
-     * @complexity O(1).
-     */
-    public boolean isEmpty(){
-        return size == 0;
-    }
-
-    /**
-     * @return The container's size.
-     * @complexity O(1).
-     */
-    public long size(){
-        return size;
-    }
 
     // Element Access
 
@@ -161,10 +144,9 @@ public class DoublyLinkedList<T> implements Iterable<T> {
      * @complexity n, where n is the number of elements between first and last.
      */
     public void insertAfter(BidirectionalIterator<T> position, ForwardIterator<T> first, final ForwardIterator<T> last){
-        for(ForwardIterator<T> it = first.clone(); !it.equals(last); it.next()){
+        for(ForwardIterator<T> it = first.clone(); !it.equals(last); it.inc()){
             position = insertAfter(position,it.get());
         }
-        insertAfter(position,last.get());
     }
 
     /**
@@ -194,10 +176,9 @@ public class DoublyLinkedList<T> implements Iterable<T> {
      * @complexity n, where n is the number of elements between first and last.
      */
     public void insertBefore(BidirectionalIterator<T> position, ForwardIterator<T> first, final ForwardIterator<T> last){
-        for(ForwardIterator<T> it = first.clone(); !it.equals(last); it.next()){
+        for(ForwardIterator<T> it = first.clone(); !it.equals(last); it.inc()){
             position = insertBefore(position,it.get());
         }
-        insertBefore(position,last.get());
     }
 
     /**
@@ -230,10 +211,10 @@ public class DoublyLinkedList<T> implements Iterable<T> {
      * @complexity n , where n is the number of elements between [first,last].
      */
     public BidirectionalIterator<T> erase(BidirectionalIterator<T> first, BidirectionalIterator<T> last){
-        do {
+        while(!first.equals(last)) {
             first = erase(first);
-        }while( !first.equals(last) );
-        return erase(last);
+        }
+        return first;
     }
 
     /**
@@ -262,7 +243,7 @@ public class DoublyLinkedList<T> implements Iterable<T> {
         tail = list.tail;
         list.tail = temp;
 
-        long temp1 = size;
+        var temp1 = size;
         size = list.size;
         list.size = temp1;
     }
@@ -410,42 +391,19 @@ public class DoublyLinkedList<T> implements Iterable<T> {
         Node<T> node;
         if(iterator.getClass() == DLLIterator.class){
             node = ((DLLIterator) iterator).node;
-        }else if(iterator.getClass() == ReverseIterator.class){
-            node = ((ReverseIterator<T, DLLIterator>) iterator).getIt().node;
+        }else if(iterator.getClass() == ReverseBidirectionalIterator.class){
+            node = ((ReverseBidirectionalIterator<T, DLLIterator>) iterator).getIt().node;
         }else{
             throw new IllegalArgumentException();
         }
         return node;
     }
 
-    @NotNull
-    @Override
-    public Iterator<T> iterator() {
-        return begin();
-    }
-
-    @Override
-    public void forEach(Consumer<? super T> action) {
-        Iterable.super.forEach(action);
-        BidirectionalIterator<T> begin = begin();
-
-        action.accept(getFront());
-
-        while(begin.hasNext()){
-            action.accept(begin.next());
-        }
-    }
-
-    @Override
-    public Spliterator<T> spliterator() {
-        throw new UnsupportedOperationException("spliterator");
-    }
-
     private class DLLIterator implements BidirectionalIterator<T>{
 
         private Node<T> node;
 
-        public DLLIterator(Node<T> node){
+        private DLLIterator(Node<T> node){
             this.node = node;
         }
 
@@ -465,28 +423,40 @@ public class DoublyLinkedList<T> implements Iterable<T> {
         }
 
         @Override
-        public T previous() {
-            if( hasPrevious() ){
+        public BidirectionalIterator<T> dec(){
+            if(node != null){
                 node = node.prev;
             }else{
-                throw new NoSuchElementException();
+                node = tail;
             }
-            return node.data;
+            return this;
+        }
+
+        @Override
+        public T previous() {
+            return dec().get();
         }
 
         @Override
         public boolean hasNext(){
-            return node.next != null;
+            return node != null;
+        }
+
+        @Override
+        public BidirectionalIterator<T> inc(){
+            if(node != null) {
+                node = node.next;
+            }else{
+                node = head;
+            }
+            return this;
         }
 
         @Override
         public T next() {
-            if( hasNext() ){
-                node = node.next;
-            }else{
-                throw new NoSuchElementException();
-            }
-            return node.data;
+            T data = node.data;
+            inc();
+            return data;
         }
 
 
@@ -502,12 +472,14 @@ public class DoublyLinkedList<T> implements Iterable<T> {
 
         @Override
         public BidirectionalIterator<T> clone() {
+            DLLIterator it;
             try {
-                super.clone();
+                @SuppressWarnings("unchecked") var v = (DLLIterator) super.clone();
+                it = v;
             } catch (CloneNotSupportedException e) {
-                e.printStackTrace();
+                it = new DLLIterator(node);
             }
-            return new DLLIterator(node);
+            return it;
         }
     }
 

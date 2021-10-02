@@ -1,5 +1,5 @@
-import rul.structures.BidirectionalIterator;
-import rul.structures.DoublyLinkedList;
+import rul.iterator.BidirectionalIterator;
+import rul.container.DoublyLinkedList;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
@@ -14,7 +14,7 @@ public class DoublyLinkedListTest {
         list.pushBack(30);
 
         BidirectionalIterator<Integer> it = list.begin();
-        assert it.get().equals(10);
+        assert it.next().equals(10);
         assert it.next().equals(20);
         assert it.next().equals(30);
         assert list.size() == 3;
@@ -28,7 +28,7 @@ public class DoublyLinkedListTest {
         list.pushFront(30);
 
         BidirectionalIterator<Integer> it = list.begin();
-        assert it.get().equals(30);
+        assert it.next().equals(30);
         assert it.next().equals(20);
         assert it.next().equals(10);
         assert list.size() == 3;
@@ -43,7 +43,7 @@ public class DoublyLinkedListTest {
         list.pushFront(1);
 
         BidirectionalIterator<Integer> it = list.reverseBegin();
-        assert it.get().equals(30);
+        assert it.next().equals(30);
         assert it.next().equals(20);
         assert it.next().equals(10);
         assert it.next().equals(1);
@@ -91,7 +91,7 @@ public class DoublyLinkedListTest {
         list.insertBefore(it,list2.reverseBegin(),list2.reverseEnd());
 
         BidirectionalIterator<Integer> begin = list.begin();
-        assert begin.get() == 10;
+        assert begin.next() == 10;
         assert begin.next() == 20;
         assert begin.next() == 30;
         assert begin.next() == 40;
@@ -108,7 +108,7 @@ public class DoublyLinkedListTest {
 
         begin = list2.begin();
 
-        assert begin.get() == 10;
+        assert begin.next() == 10;
         assert begin.next() == 20;
         assert begin.next() == 30;
         assert begin.next() == 40;
@@ -117,7 +117,7 @@ public class DoublyLinkedListTest {
 
         begin = list.begin();
 
-        assert begin.get() == 10;
+        assert begin.next() == 10;
         assert begin.next() == 20;
         assert begin.next() == 30;
         assert begin.next() == 40;
@@ -131,15 +131,12 @@ public class DoublyLinkedListTest {
         DoublyLinkedList<Integer> list2 = new DoublyLinkedList<>();
 
         long start;
+
+        start = System.nanoTime();
         for( int i = 0; i < 10000000; i = i + 1 ){
             list1.push(i);
         }
 
-        for( int i = 0; i < 10000000; i = i + 1 ){
-            list2.pushBack(i);
-        }
-
-        start = System.nanoTime();
         for( Integer i : list1 ){
             i++;
         }
@@ -147,6 +144,9 @@ public class DoublyLinkedListTest {
         System.out.println(System.nanoTime() - start);
 
         start = System.nanoTime();
+        for( int i = 0; i < 10000000; i = i + 1 ){
+            list2.pushBack(i);
+        }
 
         for( Integer i : list2 ){
             i++;

@@ -1,10 +1,10 @@
-package rul.structures;
+package rul.iterator;
 
-public class ReverseIterator<T,It extends BidirectionalIterator<T>> implements BidirectionalIterator<T> {
+public class ReverseBidirectionalIterator<T,It extends BidirectionalIterator<T>> implements BidirectionalIterator<T> {
 
-    private final It it;
+    protected final It it;
 
-    public ReverseIterator(It it){
+    public ReverseBidirectionalIterator(It it){
         this.it = it;
     }
 
@@ -14,12 +14,18 @@ public class ReverseIterator<T,It extends BidirectionalIterator<T>> implements B
 
     @Override
     public T previous() {
-        return it.next();
+        return it.inc().get();
     }
 
     @Override
     public boolean hasPrevious() {
         return it.hasNext();
+    }
+
+    @Override
+    public ReverseBidirectionalIterator<T,It> dec() {
+        it.inc();
+        return this;
     }
 
     @Override
@@ -33,8 +39,16 @@ public class ReverseIterator<T,It extends BidirectionalIterator<T>> implements B
     }
 
     @Override
+    public ReverseBidirectionalIterator<T,It> inc() {
+        it.dec();
+        return this;
+    }
+
+    @Override
     public T next() {
-        return it.previous();
+        T data = it.get();
+        it.dec();
+        return data;
     }
 
     @Override
@@ -47,7 +61,7 @@ public class ReverseIterator<T,It extends BidirectionalIterator<T>> implements B
         if(getClass() != obj.getClass()){
             return false;
         }else{
-            @SuppressWarnings("unchecked") ReverseIterator<T,It> temp = (ReverseIterator<T, It>) obj;
+            @SuppressWarnings("unchecked") ReverseBidirectionalIterator<T,It> temp = (ReverseBidirectionalIterator<T, It>) obj;
             return temp.it.equals(it);
         }
     }
@@ -59,6 +73,6 @@ public class ReverseIterator<T,It extends BidirectionalIterator<T>> implements B
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
-        return new ReverseIterator<>(it);
+        return new ReverseBidirectionalIterator<>(it);
     }
 }
